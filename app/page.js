@@ -232,17 +232,51 @@ export default function Home() {
         </section>
       )}
 
-      {/* RECHAZADO */}
+      {/* SOFT LANDING */}
       {screen === "no" && (
         <section className="rise mx-auto max-w-3xl px-6 min-h-screen flex flex-col items-center justify-center py-24 text-center">
-          <div className="mb-6 grid h-20 w-20 place-items-center rounded-full bg-[#F1F5F9] text-4xl shadow-[0_0_0_10px_rgba(100,116,139,.06)]">⏳</div>
-          <h2 className="font-display text-[clamp(26px,4vw,40px)] font-extrabold">Por ahora no cumples con los requisitos</h2>
-          <p className="mx-auto mt-3 max-w-lg text-[17px] text-ink-soft">
-            No cumples con los requisitos para la consultoría 1 a 1 en este momento, pero mantente atento a nuestros recursos gratuitos.
+          {/* ícono */}
+          <div className="mb-6 grid h-20 w-20 place-items-center rounded-full bg-[#EFF5FF] text-4xl shadow-[0_0_0_10px_rgba(59,130,246,.07)]">📋</div>
+
+          {/* badge */}
+          <span className="mb-5 inline-block rounded-full border border-[#DBE7FF] bg-[#EFF5FF] px-4 py-2 font-display text-xs font-extrabold uppercase tracking-[0.12em] text-[#1D4ED8]">
+            ✓ Aplicación recibida
+          </span>
+
+          {/* titular */}
+          <h2 className="font-display text-[clamp(26px,4vw,40px)] font-extrabold leading-[1.08]">
+            Revisamos tu perfil<br className="hidden sm:block" /> y nos ponemos en contacto.
+          </h2>
+
+          {/* cuerpo */}
+          <p className="mx-auto mt-5 max-w-lg text-[17px] leading-relaxed text-ink-soft">
+            Guardamos tu información. Nuestro equipo la revisará con calma y, si encontramos
+            que podemos ayudarte — en este momento o más adelante — te contactaremos{" "}
+            <span className="font-semibold text-ink">directamente por WhatsApp</span>.
           </p>
-          <p className="mx-auto mt-2 max-w-lg text-[17px] text-ink-soft">
-            Cuando tengas el presupuesto listo para invertir y escalar, esta puerta sigue abierta.
+          <p className="mx-auto mt-3 max-w-lg text-[17px] leading-relaxed text-ink-soft">
+            No tienes que hacer nada más. Solo mantente atento a tu teléfono.
           </p>
+
+          {/* separador */}
+          <div className="my-8 h-px w-24 rounded-full bg-[#E7EBF0]" />
+
+          {/* CTA secundario */}
+          <p className="text-[15px] font-semibold text-ink-soft">
+            Mientras tanto, prepárate:
+          </p>
+          <p className="mx-auto mt-2 max-w-md text-[15px] text-ink-soft">
+            Aprende todo lo que puedas sobre e-commerce. Cuando llegue tu momento,
+            queremos que ya estés un paso adelante.
+          </p>
+
+          {/* botón volver */}
+          <button
+            onClick={() => { setScreen("hero"); setAnswers({}); }}
+            className="mt-8 rounded-[14px] border border-[#E7EBF0] bg-white px-6 py-3.5 text-sm font-semibold text-ink-soft shadow-sm transition hover:bg-[#F4F7FB] hover:text-ink"
+          >
+            ← Volver al inicio
+          </button>
         </section>
       )}
     </main>
