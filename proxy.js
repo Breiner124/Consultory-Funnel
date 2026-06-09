@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 
-// Protege /admin con autenticación básica (usuario + clave por variables de entorno).
 export function proxy(req) {
   const auth = req.headers.get("authorization");
   const USER = process.env.ADMIN_USER || "admin";
@@ -19,4 +18,6 @@ export function proxy(req) {
   });
 }
 
-export const config = { matcher: ["/admin/:path*"] };
+export const config = {
+  matcher: ["/admin", "/admin/:path*"],
+};
