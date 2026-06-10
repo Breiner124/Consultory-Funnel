@@ -35,7 +35,16 @@ export default function Home() {
   const [screen, setScreen] = useState("hero"); // hero | 0..5 | ok | no
   const [answers, setAnswers] = useState({});
   const [sending, setSending] = useState(false);
+  const [applicants, setApplicants] = useState(15); // prueba social
   const inputRef = useRef(null);
+
+  // Trae el número real de aplicaciones al cargar
+  useEffect(() => {
+    fetch("/api/count")
+      .then((r) => r.json())
+      .then((d) => { if (d && typeof d.count === "number") setApplicants(d.count); })
+      .catch(() => {});
+  }, []);
 
   const total = QUESTIONS.length + 1;
   const stepIndex = typeof screen === "number" ? screen : screen === "hero" ? -1 : total;
@@ -68,6 +77,7 @@ export default function Home() {
       console.warn("No se pudo guardar el lead:", e);
     }
     setSending(false);
+    setApplicants((n) => n + 1);
     if (approved) {
       setScreen("ok");
       // Redirección en la MISMA pestaña: los navegadores no la bloquean
@@ -101,7 +111,21 @@ export default function Home() {
             (No nos hagas perder el tiempo).
           </h1>
 
-          <div className="mt-10 rounded-[18px] border border-[#E7EBF0] bg-white p-6 shadow-[0_10px_40px_-12px_rgba(15,40,90,.18)]">
+          {/* Línea de baja fricción + prueba social dinámica */}
+          <div className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2 text-[15px] text-ink-soft">
+            <span className="inline-flex items-center gap-2 font-semibold">
+              <span className="text-blue-500">⏱</span> Este formulario toma menos de 2 minutos
+            </span>
+            <span className="inline-flex items-center gap-2 font-semibold">
+              <span className="relative flex h-2.5 w-2.5">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75" />
+                <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-green-500" />
+              </span>
+              <span className="tabular-nums text-ink">{applicants}</span> personas han aplicado
+            </span>
+          </div>
+
+          <div className="mt-8 rounded-[18px] border border-[#E7EBF0] bg-white p-6 shadow-[0_10px_40px_-12px_rgba(15,40,90,.18)]">
             <label className="block font-display font-bold text-lg mb-3.5">
               Empecemos. ¿Cuál es tu nombre y apellidos?
             </label>
