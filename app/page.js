@@ -3,8 +3,25 @@
 import { useEffect, useRef, useState } from "react";
 import { isApproved } from "@/lib/scoring";
 
-const WHATSAPP_URL =
-  process.env.NEXT_PUBLIC_WHATSAPP_URL || "https://wa.me/message/QRI6VGAPURXNA1";
+// Link de Calendly para agendar la sesión
+const CALENDLY_URL =
+  process.env.NEXT_PUBLIC_CALENDLY_URL ||
+  "https://calendly.com/breinertenis/sesion-de-plan-de-accion";
+
+// Número de WhatsApp (solo dígitos, con código de país). Ej: 573001234567
+const WHATSAPP_NUMBER = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "573506066964";
+// Palabra clave / mensaje que llega pre-escrito
+const WHATSAPP_KEYWORD = "ESTOY LISTO";
+
+// Construye el link de WhatsApp con el mensaje pre-cargado
+function buildWhatsappUrl(nombre) {
+  const msg = encodeURIComponent(
+    `${WHATSAPP_KEYWORD} — Soy ${nombre || ""}. Vengo de la aplicación y quiero agendar mi sesión.`
+  );
+  if (WHATSAPP_NUMBER) return `https://wa.me/${WHATSAPP_NUMBER}?text=${msg}`;
+  // Si aún no hay número configurado, usa el link corto (sin texto pre-cargado)
+  return process.env.NEXT_PUBLIC_WHATSAPP_URL || "https://wa.me/message/QRI6VGAPURXNA1";
+}
 
 const QUESTIONS = [
   { id: "motivo", type: "textarea", num: "Pregunta 2 de 6",
@@ -80,11 +97,6 @@ export default function Home() {
     setApplicants((n) => n + 1);
     if (approved) {
       setScreen("ok");
-      // Redirección en la MISMA pestaña: los navegadores no la bloquean
-      // (window.open en segundo plano sí lo bloquean como pop-up).
-      setTimeout(() => {
-        try { window.location.href = WHATSAPP_URL; } catch (_) {}
-      }, 1500);
     } else {
       setScreen("no");
     }
@@ -241,18 +253,32 @@ export default function Home() {
             Felicidades, <span className="text-blue-500">{(answers.nombre || "crack").split(" ")[0]}</span>.
           </h2>
           <p className="mx-auto mt-3 max-w-lg text-[17px] text-ink-soft">
-            Tu perfil encaja con lo que buscamos. El siguiente paso es agendar tu sesión 1 a 1 por WhatsApp para revisar tu caso y definir el plan de escalado.
+            Tu perfil encaja con lo que buscamos. El siguiente paso es agendar tu sesión 1 a 1 para revisar tu caso y definir tu plan de acción.
           </p>
+
+          {/* Botón principal: agendar en Calendly */}
           <a
-            href={WHATSAPP_URL}
+            href={CALENDLY_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="mt-8 inline-flex items-center gap-2.5 rounded-[14px] px-8 py-5 font-display text-lg font-bold text-white shadow-[0_12px_30px_-8px_rgba(37,211,102,.6)] transition hover:brightness-95"
-            style={{ background: "#25D366" }}
+            className="mt-8 inline-flex w-full max-w-md items-center justify-center gap-2.5 rounded-[14px] bg-blue-500 px-8 py-5 font-display text-lg font-bold text-white shadow-[0_12px_30px_-8px_rgba(59,130,246,.6)] transition hover:bg-blue-700"
           >
-            Agenda tu sesión aquí →
+            📅 AGENDA TU REUNIÓN AHORA →
           </a>
-          <p className="mt-5 text-[13px] text-ink-soft">Si no se abre automáticamente, toca el botón verde.</p>
+
+          {/* Botón secundario: escribir por WhatsApp */}
+          <a
+            href={buildWhatsappUrl(answers.nombre)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-3 inline-flex w-full max-w-md items-center justify-center gap-2.5 rounded-[14px] border border-[#BBF7D0] bg-white px-8 py-4 font-display text-base font-bold text-[#16A34A] transition hover:bg-[#ECFDF3]"
+          >
+            💬 Prefiero escribir por WhatsApp
+          </a>
+
+          <p className="mt-5 max-w-md text-[13px] text-ink-soft">
+            Agenda directo y asegura tu cupo, o escríbenos si tienes alguna duda antes.
+          </p>
         </section>
       )}
 
