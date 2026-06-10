@@ -29,6 +29,25 @@ export default function AdminDashboard({ leads: initial }) {
   const [filter, setFilter] = useState("all");
   const [deleting, setDeleting] = useState(null);
 
+  const ESTADOS = {
+    nuevo:       { label: "🆕 Nuevo",          color: "#475569", bg: "#F1F5F9" },
+    contactado:  { label: "📞 Contactado",     color: "#1D4ED8", bg: "#EFF5FF" },
+    negociacion: { label: "💬 En negociación", color: "#B45309", bg: "#FEF6E7" },
+    cerrado:     { label: "✅ Cerrado",         color: "#16A34A", bg: "#ECFDF3" },
+    no_responde: { label: "❌ No responde",     color: "#DC2626", bg: "#FEF2F2" },
+  };
+
+  async function changeEstado(id, estado) {
+    setLeads((prev) => prev.map((l) => (l.id === id ? { ...l, estado } : l)));
+    try {
+      await fetch(`/api/leads/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ estado }),
+      });
+    } catch { /* el cambio visual ya quedó; se reintenta al recargar */ }
+  }
+
   const counts = useMemo(() => {
     let g=0, a=0, o=0, r=0;
     leads.forEach((l) => {
@@ -65,10 +84,11 @@ export default function AdminDashboard({ leads: initial }) {
   }
 
   function exportCSV() {
-    const head = ["Fecha","Nombre","WhatsApp","Presupuesto","Experiencia","Horas","Ocupacion","Motivo","Scoring","Aprobado"];
+    const head = ["Fecha","Nombre","WhatsApp","Presupuesto","Experiencia","Horas","Ocupacion","Motivo","Scoring","Estado","Aprobado"];
+    const ESTADO_CSV = { nuevo:"Nuevo", contactado:"Contactado", negociacion:"En negociacion", cerrado:"Cerrado", no_responde:"No responde" };
     const rows = leads.map((l) =>
       [fmtDate(l.createdAt), l.nombre, l.telefono, l.presupuesto, l.experiencia,
-       l.horas, l.ocupacion, l.motivo, l.score.label, l.aprobado ? "Si" : "No"]
+       l.horas, l.ocupacion, l.motivo, l.score.label, ESTADO_CSV[l.estado] || "Nuevo", l.aprobado ? "Si" : "No"]
         .map((v) => `"${(v ?? "").toString().replace(/"/g, '""')}"`)
         .join(",")
     );
@@ -129,10 +149,10 @@ export default function AdminDashboard({ leads: initial }) {
             Aún no hay leads en esta categoría.
           </div>
         ) : (
-          <table className="w-full min-w-[1020px] overflow-hidden rounded-2xl border border-[#E7EBF0] bg-white text-sm">
+          <table className="w-full min-w-[1140px] overflow-hidden rounded-2xl border border-[#E7EBF0] bg-white text-sm">
             <thead>
               <tr className="bg-[#F1F5FB] text-left font-display text-xs uppercase tracking-wide text-ink-soft">
-                {["Scoring","Nombre / Fecha","WhatsApp","Presupuesto","Experiencia","Horas/día","Ocupación","Motivo",""].map((h) => (
+                {["Scoring","Estado","Nombre / Fecha","WhatsApp","Presupuesto","Experiencia","Horas/día","Ocupación","Motivo",""].map((h) => (
                   <th key={h} className="whitespace-nowrap px-4 py-3.5">{h}</th>
                 ))}
               </tr>
@@ -144,6 +164,22 @@ export default function AdminDashboard({ leads: initial }) {
                     <span className={`inline-block whitespace-nowrap rounded-full border px-2.5 py-1.5 font-display text-xs font-bold ${TAG[l.score.cls]}`}>
                       {l.score.label}
                     </span>
+                  </td>
+                  <td className="px-4 py-3.5 align-top">
+                    <select
+                      value={l.estado || "nuevo"}
+                      onChange={(e) => changeEstado(l.id, e.target.value)}
+                      className="cursor-pointer rounded-lg border px-2 py-1.5 text-xs font-bold outline-none"
+                      style={{
+                        color: (ESTADOS[l.estado] || ESTADOS.nuevo).color,
+                        background: (ESTADOS[l.estado] || ESTADOS.nuevo).bg,
+                        borderColor: "transparent",
+                      }}
+                    >
+                      {Object.entries(ESTADOS).map(([key, v]) => (
+                        <option key={key} value={key}>{v.label}</option>
+                      ))}
+                    </select>
                   </td>
                   <td className="px-4 py-3.5 align-top">
                     <b>{l.nombre || "—"}</b>
